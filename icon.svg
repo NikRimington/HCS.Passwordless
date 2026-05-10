@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
-  <!-- Background: deep navy rounded square -->
-  <rect width="128" height="128" rx="22" ry="22" fill="#1E3A8A"/>
+  <!-- Background: HCS red rounded square -->
+  <rect width="128" height="128" rx="22" ry="22" fill="#87171B"/>
 
   <!-- Shield body -->
   <path d="M64 18 L100 36 L100 64 C100 85 84 99 64 107 C44 99 28 85 28 64 L28 36 Z"
@@ -9,7 +9,7 @@
   <!-- Checkmark: passwordless = no password needed -->
   <path d="M47 66 L60 78 L82 53"
         fill="none"
-        stroke="#1E3A8A"
+        stroke="#87171B"
         stroke-width="7"
         stroke-linecap="round"
         stroke-linejoin="round"/>
