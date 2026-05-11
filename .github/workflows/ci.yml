@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - dev/v1
+      - dev/v2
+    tags:
+      - 'beta-*'
+      - 'release-*'
+
+jobs:
+  build-test-pack:
+    name: Build, Test & Pack
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x'
+
+      - name: Determine package version
+        id: ver
+        shell: bash
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/release-* ]]; then
+            PKG_VERSION="${GITHUB_REF_NAME#release-}"
+            PUSH=true
+          elif [[ "${GITHUB_REF}" == refs/tags/beta-* ]]; then
+            PKG_VERSION="${GITHUB_REF_NAME#beta-}-beta"
+            PUSH=true
+          else
+            BASE=$(grep -oP '(?<=<Version>)[^<]+' Directory.Build.props)
+            PKG_VERSION="${BASE}-alpha.${GITHUB_RUN_NUMBER}"
+            PUSH=false
+          fi
+          echo "version=${PKG_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "push=${PUSH}" >> "$GITHUB_OUTPUT"
+          echo "Packaging as ${PKG_VERSION} (push=${PUSH})"
+
+      - name: Restore
+        run: dotnet restore Passwordless.CI.slnx
+
+      - name: Build
+        run: |
+          dotnet build Passwordless.CI.slnx \
+            --no-restore \
+            --configuration Release \
+            -p:Version=${{ steps.ver.outputs.version }}
+
+      - name: Test
+        run: |
+          dotnet test Passwordless.CI.slnx \
+            --no-build \
+            --configuration Release \
+            --logger "console;verbosity=normal"
+
+      - name: Pack
+        run: |
+          dotnet pack Passwordless.CI.slnx \
+            --no-build \
+            --configuration Release \
+            -p:Version=${{ steps.ver.outputs.version }} \
+            --output ./artifacts
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-${{ steps.ver.outputs.version }}
+          path: ./artifacts/*.nupkg
+          retention-days: 30
+
+      - name: Push to NuGet.org
+        if: steps.ver.outputs.push == 'true'
+        run: |
+          dotnet nuget push "./artifacts/*.nupkg" \
+            --api-key ${{ secrets.NUGET_API_KEY }} \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
