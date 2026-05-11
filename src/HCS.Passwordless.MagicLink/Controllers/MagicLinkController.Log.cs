@@ -4,6 +4,9 @@ namespace HCS.Passwordless.MagicLink.Controllers;
 
 public partial class MagicLinkController
 {
+    [LoggerMessage(Level = LogLevel.Debug, Message = "MagicLink verify: showing confirm page email={Email} returnUrl={ReturnUrl}")]
+    private partial void LogVerifyShowingConfirmPage(string? email, string? returnUrl);
+
     [LoggerMessage(Level = LogLevel.Debug, Message = "MagicLink verify: email={Email} returnUrl={ReturnUrl}")]
     private partial void LogVerifyAttempt(string? email, string? returnUrl);
 

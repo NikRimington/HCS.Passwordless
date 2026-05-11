@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
@@ -5,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using HCS.Passwordless.Configuration;
 using HCS.Passwordless.MagicLink.Configuration;
+using HCS.Passwordless.MagicLink.Models;
 using HCS.Passwordless.Endpoints.Dtos;
 using HCS.Passwordless.Endpoints.Shared;
 using HCS.Passwordless.Notifications;
@@ -31,6 +33,8 @@ public partial class MagicLinkController : UmbracoApiController
     private readonly IOptionsMonitor<MagicLinkOptions> _mlOpts;
     private readonly ILogger<MagicLinkController> _logger;
     private readonly LinkGenerator _linkGenerator;
+    private readonly IAntiforgery _antiforgery;
+    private readonly IRazorViewRenderer _viewRenderer;
 
     public MagicLinkController(
         IMemberLookupService lookup,
@@ -42,7 +46,9 @@ public partial class MagicLinkController : UmbracoApiController
         IOptionsMonitor<PasswordlessOptions> opts,
         IOptionsMonitor<MagicLinkOptions> mlOpts,
         ILogger<MagicLinkController> logger,
-        LinkGenerator linkGenerator)
+        LinkGenerator linkGenerator,
+        IAntiforgery antiforgery,
+        IRazorViewRenderer viewRenderer)
     {
         _lookup = lookup;
         _users = users;
@@ -54,6 +60,8 @@ public partial class MagicLinkController : UmbracoApiController
         _mlOpts = mlOpts;
         _logger = logger;
         _linkGenerator = linkGenerator;
+        _antiforgery = antiforgery;
+        _viewRenderer = viewRenderer;
     }
 
     [HttpPost("request")]
@@ -88,11 +96,55 @@ public partial class MagicLinkController : UmbracoApiController
         return Accepted(new { ok = true });
     }
 
+    /// <summary>
+    /// Renders the confirmation page. Email scanners make GET requests to every link, so we must
+    /// not consume the single-use token here — that happens only on the subsequent POST.
+    /// </summary>
     [HttpGet("verify")]
     public async Task<IActionResult> Verify(
         [FromQuery] string? email,
         [FromQuery] string? token,
         [FromQuery] string? returnUrl,
+        CancellationToken ct)
+    {
+        var mlOptions = _mlOpts.CurrentValue;
+        if (!mlOptions.Enabled) return NotFound();
+
+        var options = _opts.CurrentValue;
+        var safe = ReturnUrlValidator.Sanitize(returnUrl, options.PostLoginRedirectPath);
+
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(token))
+        {
+            LogVerifyAborting();
+            return Redirect($"{options.LoginPath}?error=expired-or-used&returnUrl={Uri.EscapeDataString(safe)}");
+        }
+
+        var afTokens = _antiforgery.GetAndStoreTokens(HttpContext);
+        var postUrl = HttpContext.Request.Path.Value ?? "/auth/magic-link/verify";
+
+        var model = new MagicLinkConfirmModel
+        {
+            Email = email.Trim(),
+            Token = token,
+            ReturnUrl = safe,
+            PostUrl = postUrl,
+            AntiForgeryFieldName = afTokens.FormFieldName,
+            AntiForgeryToken = afTokens.RequestToken!,
+            Branding = options.Notifications.Branding
+        };
+
+        LogVerifyShowingConfirmPage(email, safe);
+        var html = await _viewRenderer.RenderAsync(
+            "~/Views/Shared/Passwordless/MagicLinkConfirm.cshtml", model, ct);
+        return Content(html, "text/html");
+    }
+
+    [HttpPost("verify")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> VerifyConfirm(
+        [FromForm] string? email,
+        [FromForm] string? token,
+        [FromForm] string? returnUrl,
         CancellationToken ct)
     {
         var mlOptions = _mlOpts.CurrentValue;
@@ -144,7 +196,6 @@ public partial class MagicLinkController : UmbracoApiController
         LogVerifyTokenValid(member.Id);
         await _signIn.SignInAndRotateAsync(member, isPersistent: true, authenticationMethod: "magic-link", ct: ct);
         LogVerifySignedInAndRedirecting(safe);
-        _logger.LogDebug("MagicLink verify: sign-in complete — redirecting to {Safe}", safe);
 
         return Redirect(safe);
     }
