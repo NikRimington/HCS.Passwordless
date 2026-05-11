@@ -7,6 +7,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="no-referrer" />
     <title>Sign in to @Model.Branding.ProductName</title>
     <style>
         *, *::before, *::after { box-sizing: border-box; }
@@ -26,14 +27,29 @@
              style="max-height:48px;margin:0 auto 20px;display:block;" />
     }
     <h1>Sign in to @Model.Branding.ProductName</h1>
-    <p>Click below to complete your sign-in. This link can only be used once.</p>
-    <form method="post" action="@Model.PostUrl">
+    <p>Click <strong>Sign in</strong> to complete your sign-in, or wait — it will happen automatically in <span id="pwl-countdown">15</span> seconds.</p>
+    <form id="pwl-confirm-form" method="post" action="@Model.PostUrl">
         <input type="hidden" name="@Model.AntiForgeryFieldName" value="@Model.AntiForgeryToken" />
         <input type="hidden" name="email" value="@Model.Email" />
         <input type="hidden" name="token" value="@Model.Token" />
         <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
         <button type="submit" class="btn">Sign in</button>
     </form>
+    <script>
+        (function () {
+            var remaining = 15;
+            var countdownEl = document.getElementById('pwl-countdown');
+            var form = document.getElementById('pwl-confirm-form');
+            var timer = setInterval(function () {
+                remaining -= 1;
+                if (countdownEl) countdownEl.textContent = remaining;
+                if (remaining <= 0) {
+                    clearInterval(timer);
+                    form.submit();
+                }
+            }, 1000);
+        })();
+    </script>
 </div>
 </body>
 </html>

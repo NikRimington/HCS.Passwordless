@@ -110,6 +110,8 @@ public partial class MagicLinkController : UmbracoApiController
         var mlOptions = _mlOpts.CurrentValue;
         if (!mlOptions.Enabled) return NotFound();
 
+        Response.Headers["X-Frame-Options"] = "SAMEORIGIN";
+
         var options = _opts.CurrentValue;
         var safe = ReturnUrlValidator.Sanitize(returnUrl, options.PostLoginRedirectPath);
 
