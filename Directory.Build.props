@@ -7,12 +7,11 @@
     <!-- CS1591: missing XML doc — kept as warning, not error, so Release packs succeed -->
     <WarningsNotAsErrors>$(WarningsNotAsErrors);CS1591</WarningsNotAsErrors>
     <Authors>Nik Rimington</Authors>
-    <Company>HCS</Company>
-    <Copyright>Copyright © HCS</Copyright>
+    <Company>Nik Rimington</Company>
+    <Copyright>Copyright © Nik Rimington</Copyright>
     <RepositoryType>git</RepositoryType>
-    <!-- TODO: update these two URLs once the GitHub repo is published -->
-    <PackageProjectUrl>https://github.com/OWNER/HCS.Passwordless</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/OWNER/HCS.Passwordless</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/NikRimington/HCS.Passwordless</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/NikRimington/HCS.Passwordless</RepositoryUrl>
     <Version>1.0.0</Version>
   </PropertyGroup>
 </Project>
