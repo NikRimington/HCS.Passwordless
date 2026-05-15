@@ -32,6 +32,8 @@ You can install one, two, or all three add-ons in the same site. They coexist wi
 
 ## At a glance
 
+![The combined passwordless login form showing magic link, OTP, and passkey sign-in options](./Screenshots/LoginFormExample.png)
+
 ```mermaid
 graph LR
     member([Your Member]) --> login[Login Page]

@@ -78,6 +78,8 @@ The sender name, email address, email subject, and template path are configured 
 
 See [Email Templates](email-templates.md) for how to customise the email design.
 
+![Default magic link email showing the branded sign-in button and fallback URL](./Screenshots/MagicLinkEmailExample.png)
+
 ## Rate limiting
 
 To prevent abuse, the request endpoint is rate-limited automatically:

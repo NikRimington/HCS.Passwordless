@@ -74,6 +74,8 @@ All options live under `HCS:Authentication:Otp` in `appsettings.json`.
 
 Sender details and branding are configured in `HCS:Authentication:Notifications`. See [Email Templates](email-templates.md) for details.
 
+![Default OTP email showing the six-digit sign-in code](./Screenshots/OTPEmailExample.png)
+
 ## Rate limiting
 
 - **10 requests per IP per minute** on the `/request` endpoint

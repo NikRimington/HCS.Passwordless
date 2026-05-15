@@ -81,7 +81,11 @@ Add an `HCS` section to your `appsettings.json`. The minimum you need depends on
 
 ## Step 4 — Build your login form
 
-The library provides API endpoints but not a login page UI — that's yours to design in Umbraco as normal. Here's a minimal example for magic link:
+The library provides API endpoints but not a login page UI — that's yours to design in Umbraco as normal. The demo site ships a combined form that wires all three methods onto a single email field — here's what it looks like with all three add-ons installed:
+
+![Login form with email field and buttons for magic link, OTP, and passkey sign-in](./Screenshots/LoginFormExample.png)
+
+Here's a minimal example for magic link:
 
 ```html
 <form id="magic-link-form">
