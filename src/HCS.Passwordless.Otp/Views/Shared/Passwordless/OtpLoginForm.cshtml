@@ -1,0 +1,40 @@
+@using Microsoft.Extensions.Options
+@using HCS.Passwordless.Otp.Configuration
+@inject IOptionsMonitor<OtpOptions> OtpOptions
+@{
+    var returnUrl = Context.Request.Query["returnUrl"].FirstOrDefault() ?? string.Empty;
+    if (!OtpOptions.CurrentValue.Enabled) return;
+}
+<div id="pwl-otp-login"
+     data-return-url="@returnUrl"
+     style="max-width:400px;">
+
+    <form>
+        @Html.AntiForgeryToken()
+
+        <div style="margin-bottom:1rem;">
+            <label for="pwl-email">Email address</label>
+            <input id="pwl-email"
+                   name="email"
+                   type="email"
+                   autocomplete="username"
+                   required
+                   style="display:block;width:100%;margin-top:4px;" />
+            <input type="hidden" name="returnUrl" value="@returnUrl" />
+        </div>
+
+        <button type="button" id="pwl-btn-otp" style="display:block;width:100%;margin-bottom:8px;">
+            Email me a one-time code
+        </button>
+
+        <div id="pwl-otp-request-msg" role="alert" style="margin-top:12px;"></div>
+    </form>
+
+    <div id="pwl-otp-section" style="display:none;margin-top:16px;">
+        @await Html.PartialAsync("Passwordless/OtpForm")
+    </div>
+</div>
+<script type="module">
+    import { initOtpLoginForm } from '/App_Plugins/HCS.Passwordless/js/passwordless.js';
+    initOtpLoginForm(document.getElementById('pwl-otp-login'));
+</script>

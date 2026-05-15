@@ -2,7 +2,7 @@
 
 ## Role
 
-Shared infrastructure package. All add-on packages (`MagicLink`, `Otp`, `WebAuthn`) depend on this. Has no dependency on any add-on. Ships via NuGet. Uses `Microsoft.NET.Sdk` (not RCL) because it ships no views.
+Shared infrastructure package. All add-on packages (`MagicLink`, `Otp`, `WebAuthn`) depend on this. Has no dependency on any add-on. Ships via NuGet. Uses `Microsoft.NET.Sdk.Razor` (RCL) to serve the shared `passwordless.js` client script at `App_Plugins/HCS.Passwordless/js/passwordless.js`. Ships no Razor views — only the static asset.
 
 ## Key namespaces
 
