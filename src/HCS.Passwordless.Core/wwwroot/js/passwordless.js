@@ -174,7 +174,7 @@ export function initConditionalUi(containerEl) {
     const getReturnUrl = () => containerEl.dataset.returnUrl ?? '';
     const btn = containerEl.querySelector('#pwl-conditional-passkey');
 
-    if (btn) btn.style.display = '';
+    if (btn) btn.style.display = 'block';
 
     async function signIn(mediation) {
         const optResp = await fetch(`${base}/webauthn/signin/options`, {
