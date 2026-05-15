@@ -1,10 +1,82 @@
-﻿@using Umbraco.Cms.Web.Common.PublishedModels;
+@using Umbraco.Cms.Web.Common.PublishedModels;
+@using Microsoft.Extensions.Options
+@using HCS.Passwordless.Auth
+@using HCS.Passwordless.MagicLink.Configuration
 @inherits Umbraco.Cms.Web.Common.Views.UmbracoViewPage<ContentModels.Login>
 @using ContentModels = Umbraco.Cms.Web.Common.PublishedModels;
+@inject IOptionsMonitor<MagicLinkOptions> MlOptions
+@inject IEnumerable<IPasswordlessAuthFactor> AuthFactors
 @{
-	Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var returnUrl = Context.Request.Query["returnUrl"].FirstOrDefault() ?? string.Empty;
+    var magicLinkEnabled = MlOptions.CurrentValue.Enabled;
+    var otpEnabled = AuthFactors.FirstOrDefault(f => f.Name == "otp")?.IsEnabled ?? false;
+    var passkeyEnabled = AuthFactors.FirstOrDefault(f => f.Name == "webauthn")?.IsEnabled ?? false;
 }
 
-<h1>Node Name: @Model.Name</h1>
+<div class="card">
+    <h1>Sign in</h1>
+    <p style="color:#555;margin-bottom:1.5rem;">
+        Enter your email address and choose how you'd like to receive your sign-in credential.
+        No password required.
+    </p>
 
-@await Html.PartialAsync("Passwordless/LoginForm")
+    <form id="pwl-login-form"
+          data-return-url="@returnUrl"
+          style="max-width:400px;">
+
+        @Html.AntiForgeryToken()
+
+        <div style="margin-bottom:1rem;">
+            <label for="pwl-email">Email address</label>
+            <input id="pwl-email"
+                   name="email"
+                   type="email"
+                   autocomplete="username webauthn"
+                   required
+                   style="display:block;width:100%;margin-top:4px;" />
+            <input type="hidden" name="returnUrl" value="@returnUrl" />
+        </div>
+
+        @if (magicLinkEnabled)
+        {
+            <button type="button" id="pwl-btn-magic-link" style="display:block;width:100%;margin-bottom:8px;">
+                Email me a sign-in link
+            </button>
+        }
+
+        @if (otpEnabled)
+        {
+            <button type="button" id="pwl-btn-otp" style="display:block;width:100%;margin-bottom:8px;">
+                Email me a one-time code
+            </button>
+        }
+
+        @if (passkeyEnabled)
+        {
+            <button type="button" id="pwl-btn-passkey" style="display:block;width:100%;margin-bottom:8px;">
+                Sign in with a passkey
+            </button>
+        }
+
+        <div id="pwl-message" role="alert" style="margin-top:12px;"></div>
+    </form>
+
+    @if (otpEnabled)
+    {
+        <div id="pwl-otp-section" style="display:none;margin-top:16px;">
+            @await Html.PartialAsync("Passwordless/OtpForm")
+        </div>
+    }
+
+    <script type="module">
+        import { initLoginForm } from '/App_Plugins/HCS.Passwordless/js/passwordless.js';
+        initLoginForm(document.getElementById('pwl-login-form'));
+    </script>
+
+    @if (passkeyEnabled)
+    {
+        <hr style="margin:1.5rem 0;border:none;border-top:1px solid #eee;" />
+        @await Html.PartialAsync("Passwordless/PasskeySignInButton")
+    }
+</div>
