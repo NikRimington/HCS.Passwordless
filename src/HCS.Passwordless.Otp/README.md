@@ -25,14 +25,7 @@ builder.CreateUmbracoBuilder()
     .Build();
 ```
 
-### 2. Map endpoints (`Program.cs`)
-
-```csharp
-app.MapPasswordlessMembers()
-    .WithOtp();
-```
-
-### 3. Configure (`appsettings.json`)
+### 2. Configure (`appsettings.json`)
 
 ```json
 {
@@ -51,7 +44,7 @@ app.MapPasswordlessMembers()
 }
 ```
 
-### 4. OTP form partial
+### 3. OTP form partial
 
 ```cshtml
 @await Html.PartialAsync("Passwordless/OtpForm")

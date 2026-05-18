@@ -6,9 +6,11 @@ Passwordless member authentication for **Umbraco 13**, distributed as NuGet pack
 
 | Package | Description |
 |---------|-------------|
-| `HCS.Passwordless` | Core library — magic link authentication |
+| `HCS.Passwordless.MagicLink` | Magic link authentication |
 | `HCS.Passwordless.Otp` | Add-on — email OTP codes |
 | `HCS.Passwordless.WebAuthn` | Add-on — FIDO2/passkey authentication |
+
+`HCS.Passwordless.Core` is a shared dependency installed automatically by any of the above.
 
 ## Requirements
 
@@ -21,7 +23,7 @@ Passwordless member authentication for **Umbraco 13**, distributed as NuGet pack
 ### 1. Install
 
 ```bash
-dotnet add package HCS.Passwordless
+dotnet add package HCS.Passwordless.MagicLink
 # optional add-ons:
 dotnet add package HCS.Passwordless.Otp
 dotnet add package HCS.Passwordless.WebAuthn
@@ -33,21 +35,13 @@ dotnet add package HCS.Passwordless.WebAuthn
 builder.CreateUmbracoBuilder()
     .AddBackOffice()
     .AddWebsite()
-    .AddPasswordlessMembers()   // required — enables magic links
-    .AddPasswordlessOtp()       // optional
-    .AddPasswordlessWebAuthn()  // optional
+    .AddPasswordlessMagicLink()  // magic link sign-in
+    .AddPasswordlessOtp()        // optional
+    .AddPasswordlessWebAuthn()   // optional
     .Build();
 ```
 
-### 3. Map endpoints (`Program.cs`)
-
-```csharp
-app.MapPasswordlessMembers()
-    .WithOtp()       // omit if not installed
-    .WithWebAuthn(); // omit if not installed
-```
-
-### 4. Configure (`appsettings.json`)
+### 3. Configure (`appsettings.json`)
 
 ```json
 {
@@ -70,7 +64,7 @@ app.MapPasswordlessMembers()
 }
 ```
 
-### 5. Add login UI
+### 4. Add login UI
 
 In your login view, render the built-in partial:
 
@@ -117,13 +111,14 @@ Default templates are Razor partials shipped in the RCL. Override any template b
 ```
 Passwordless.slnx
 ├── src/
-│   ├── HCS.Passwordless          # Core / magic links
-│   ├── HCS.Passwordless.Otp      # OTP add-on
-│   └── HCS.Passwordless.WebAuthn # WebAuthn add-on
+│   ├── HCS.Passwordless.Core         # Shared infrastructure
+│   ├── HCS.Passwordless.MagicLink    # Magic link add-on
+│   ├── HCS.Passwordless.Otp          # OTP add-on
+│   └── HCS.Passwordless.WebAuthn     # WebAuthn add-on
 ├── tests/
-│   └── HCS.Passwordless.Tests    # xUnit test suite
+│   └── HCS.Passwordless.Tests        # xUnit test suite
 └── demo/
-    └── HCS.Passwordless.Demo     # Full demo Umbraco site
+    └── HCS.Passwordless.Demo         # Full demo Umbraco site
 ```
 
 ## Building

@@ -26,14 +26,7 @@ builder.CreateUmbracoBuilder()
     .Build();
 ```
 
-### 2. Map endpoints (`Program.cs`)
-
-```csharp
-app.MapPasswordlessMembers()
-    .WithWebAuthn();
-```
-
-### 3. Configure (`appsettings.json`)
+### 2. Configure (`appsettings.json`)
 
 ```json
 {
@@ -51,13 +44,13 @@ app.MapPasswordlessMembers()
 
 > **Important:** `Origins` must exactly match the origin of the site as seen by the browser, including scheme and port.
 
-### 4. Add passkey UI partials
+### 3. Add passkey UI partials
 
 ```cshtml
-{{-- Sign-in --}}
+@* Sign-in *@
 @await Html.PartialAsync("Passwordless/PasskeySignInButton")
 
-{{-- On a member profile/settings page: --}}
+@* On a member profile/settings page: *@
 @await Html.PartialAsync("Passwordless/PasskeyRegisterButton")
 @await Html.PartialAsync("Passwordless/PasskeyCredentialList")
 ```
@@ -76,12 +69,13 @@ app.MapPasswordlessMembers()
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `POST` | `/webauthn/register/options` | Get registration challenge |
-| `POST` | `/webauthn/register/complete` | Complete credential registration |
-| `POST` | `/webauthn/signin/options` | Get authentication challenge |
-| `POST` | `/webauthn/signin/complete` | Complete authentication and sign in |
-| `GET` | `/webauthn/credentials` | List member's registered credentials |
-| `DELETE` | `/webauthn/credentials/{id}` | Remove a credential |
+| `POST` | `/auth/webauthn/register/options` | Get registration challenge |
+| `POST` | `/auth/webauthn/register/complete` | Complete credential registration |
+| `POST` | `/auth/webauthn/signin/options` | Get authentication challenge |
+| `POST` | `/auth/webauthn/signin/complete` | Complete authentication and sign in |
+| `GET` | `/auth/webauthn/credentials` | List member's registered credentials |
+| `PATCH` | `/auth/webauthn/credentials/{id}` | Rename a credential |
+| `DELETE` | `/auth/webauthn/credentials/{id}` | Remove a credential |
 
 ## Database Migration
 
