@@ -55,13 +55,7 @@ builder.CreateUmbracoBuilder()
 
 Each `AddX()` method calls `services.AddPasswordlessCoreOnce()` internally, so core infrastructure is registered exactly once regardless of call order or how many add-ons are installed.
 
-Endpoints are mapped separately after `BootUmbracoAsync`:
-
-```csharp
-app.MapPasswordlessMembers()
-    .WithOtp()
-    .WithWebAuthn();
-```
+Endpoints are exposed via standard `[ApiController]` MVC controllers and are auto-discovered by Umbraco's pipeline — no explicit endpoint-mapping call is needed in `Program.cs`.
 
 ## Key abstractions
 

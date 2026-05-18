@@ -11,7 +11,7 @@ Add-on RCL package. Depends on `HCS.Passwordless.Core`. Ships via NuGet. Must no
 | `Auth` | `OtpAuthFactor` — implements `IPasswordlessAuthFactor` |
 | `Configuration` | `OtpOptions`, `OtpOptionsValidator` |
 | `DependencyInjection` | `OtpBuilderExtensions` — entry point, chains off `IUmbracoBuilder` |
-| `Endpoints.Otp` | `RequestOtpEndpoint`, `VerifyOtpEndpoint` |
+| `Controllers` | `OtpController` — handles OTP request and verify |
 | `Notifications` | `EmailOtpNotificationSender`, `IOtpNotificationSender` |
 | `Security.TokenProviders` | `OtpTokenProvider` |
 | `Services` | `IOtpCodeStore`, `IAttemptCounter` and their distributed-cache implementations |
@@ -29,7 +29,7 @@ Options bind from `HCS:Authentication:Otp`. Do not introduce a separate top-leve
 
 ## Service registration
 
-Entry point is `AddPasswordlessOtp()` on `IUmbracoBuilder`. It calls `services.AddPasswordlessCoreOnce()` internally, so it can be registered independently without needing `AddPasswordlessMagicLink()` first. Endpoints are registered via `WithOtp()` on the `PasswordlessEndpointBuilder` returned by `MapPasswordlessMembers()`.
+Entry point is `AddPasswordlessOtp()` on `IUmbracoBuilder`. It calls `services.AddPasswordlessCoreOnce()` internally, so it can be registered independently without needing `AddPasswordlessMagicLink()` first. The `OtpController` is auto-discovered by ASP.NET Core's MVC pipeline — no explicit endpoint mapping call is needed in `Program.cs`.
 
 ## Attempt counter semantics
 

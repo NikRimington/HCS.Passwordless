@@ -11,7 +11,7 @@ Add-on RCL package providing magic link sign-in for Umbraco members. Depends on 
 | `Auth` | `MagicLinkAuthFactor` — implements `IPasswordlessAuthFactor` |
 | `Configuration` | `MagicLinkOptions`, `MagicLinkOptionsValidator` |
 | `DependencyInjection` | `MagicLinkBuilderExtensions` — the public entry point |
-| `Endpoints` | Minimal API endpoints for magic link request/verify |
+| `Controllers` | `MagicLinkController` — handles magic link request and verify |
 | `Notifications` | `EmailNotificationSender`, `IPasswordlessNotificationSender` |
 | `Security` | `MagicLinkTokenProvider` |
 
@@ -27,7 +27,7 @@ Magic link options bind from `HCS:Authentication:MagicLink`. Section name consta
 - `FakeWork` must be awaited on both the happy path and error path so timing is uniform.
 - `ReturnUrlValidator` must validate every redirect target before issuing a `Location` header.
 - Tokens are SHA-256 hashed before storage — store the hash, compare the hash.
-- `ISingleUseTokenStore.ConsumeAsync` must be atomic — if it returns false, deny access.
+- `ISingleUseTokenStore.TryMarkUsedAsync` must be atomic — if it returns false, deny access.
 
 ## Service registration
 
