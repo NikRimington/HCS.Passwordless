@@ -94,7 +94,7 @@ app.MapPasswordlessMembers();
 
 ## Endpoints
 
-All endpoints are prefixed by `BasePath` (default `/umbraco/passwordless`).
+All endpoints are served under `/umbraco/passwordless`.
 
 | Method | Path | Description |
 |--------|------|-------------|

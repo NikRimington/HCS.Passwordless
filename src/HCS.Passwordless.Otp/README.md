@@ -72,7 +72,7 @@ app.MapPasswordlessMembers()
 
 ## Endpoints
 
-All endpoints are appended to the `BasePath` configured in the core package.
+All endpoints are served under `/umbraco/passwordless`.
 
 | Method | Path | Description |
 |--------|------|-------------|

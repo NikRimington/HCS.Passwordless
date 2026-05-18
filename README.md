@@ -53,7 +53,6 @@ app.MapPasswordlessMembers()
 {
   "HCS": {
     "Authentication": {
-      "BasePath": "/umbraco/passwordless",
       "LoginPath": "/login",
       "PostLoginRedirectPath": "/member",
       "RejectUnknownEmails": false,
