@@ -30,7 +30,10 @@ jobs:
             PKG_VERSION="${GITHUB_REF_NAME#release-}"
             PUSH=true
           elif [[ "${GITHUB_REF}" == refs/tags/beta-* ]]; then
-            PKG_VERSION="${GITHUB_REF_NAME#beta-}-beta"
+            STRIPPED="${GITHUB_REF_NAME#beta-}"
+            BASE="${STRIPPED%.*}"
+            BUILD="${STRIPPED##*.}"
+            PKG_VERSION="${BASE}-beta$(printf '%03d' "${BUILD}")"
             PUSH=true
           else
             BASE=$(grep -oP '(?<=<Version>)[^<]+' Directory.Build.props)
