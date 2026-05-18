@@ -94,12 +94,11 @@ app.MapPasswordlessMembers();
 
 ## Endpoints
 
-All endpoints are served under `/umbraco/passwordless`.
-
 | Method | Path | Description |
 |--------|------|-------------|
-| `POST` | `/magic-link/request` | Request a magic link email |
-| `GET` | `/magic-link/verify` | Verify token and sign in |
+| `POST` | `/auth/magic-link/request` | Request a magic link email |
+| `GET` | `/auth/magic-link/verify` | Show sign-in confirmation page |
+| `POST` | `/auth/magic-link/verify` | Validate token and sign in |
 
 ## Customising Email Templates
 

@@ -72,12 +72,10 @@ app.MapPasswordlessMembers()
 
 ## Endpoints
 
-All endpoints are served under `/umbraco/passwordless`.
-
 | Method | Path | Description |
 |--------|------|-------------|
-| `POST` | `/otp/request` | Request an OTP code email |
-| `POST` | `/otp/verify` | Submit a code to sign in |
+| `POST` | `/auth/otp/request` | Request an OTP code email |
+| `POST` | `/auth/otp/verify` | Submit a code to sign in |
 
 ## Email Templates
 
