@@ -76,7 +76,15 @@ public class OtpController : ControllerBase
         }
         else
         {
-            await FakeWork.DelayAsync(baseOpts.RateLimits.FakeWorkDelay, ct);
+            if (otpOpts.ShowMemberNotFound)
+            {
+                return Accepted(new { ok = false });
+            }
+            else
+            {
+                await FakeWork.DelayAsync(baseOpts.RateLimits.FakeWorkDelay, ct);
+                return Accepted(new { ok = true });
+            }
         }
 
         return Accepted(new { ok = true });
