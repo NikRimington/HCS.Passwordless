@@ -9,6 +9,7 @@ public sealed class OtpOptions
     public int CodeLength { get; set; } = 6;
     public int MaxAttempts { get; set; } = 5;
     public TimeSpan LockoutDuration { get; set; } = TimeSpan.FromMinutes(15);
+    public bool ShowMemberNotFound { get; set; } = false;
 
     public string NotificationSubject { get; set; } = "Your sign-in code";
     public string NotificationPartial { get; set; } = "Emails/Passwordless/Otp";

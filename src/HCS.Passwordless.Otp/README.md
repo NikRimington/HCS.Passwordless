@@ -38,7 +38,8 @@ builder.CreateUmbracoBuilder()
         "MaxAttempts": 5,
         "LockoutDuration": "00:15:00",
         "NotificationSubject": "Your sign-in code",
-        "NotificationPartial": "Emails/Passwordless/Otp"
+        "NotificationPartial": "Emails/Passwordless/Otp",
+        "ShowMemberNotFound": false
       }
     }
   }
@@ -64,6 +65,7 @@ builder.CreateUmbracoBuilder()
 | `LockoutDuration` | TimeSpan | `00:15:00` | How long the lockout lasts |
 | `NotificationSubject` | string | `Your sign-in code` | Email subject line |
 | `NotificationPartial` | string | `Emails/Passwordless/Otp` | Razor partial path for the OTP email body |
+| `ShowMemberNotFound` | bool | `false` | For security, hide members not found with supplied email address, otherwise it will let the user know the email was not linked to a member  |
 
 ## Endpoints
 

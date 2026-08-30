@@ -20,7 +20,7 @@ export function initLoginForm(formEl) {
     }
 
     async function postJson(url, body, scopeEl) {
-        return fetch(url, {
+        return await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -56,12 +56,18 @@ export function initLoginForm(formEl) {
         try {
             const resp = await postJson(`${base}/otp/request`, { email, returnUrl: getReturnUrl() });
             if (resp.ok) {
-                if (otpSection) {
-                    otpSection.style.display = '';
-                    const otpForm = otpSection.querySelector('#pwl-otp-form');
-                    if (otpForm) otpForm.style.display = '';
+                const data = await resp.json();
+                if (data.ok === true) {
+                    if (otpSection) {
+                        otpSection.style.display = '';
+                        const otpForm = otpSection.querySelector('#pwl-otp-form');
+                        if (otpForm) otpForm.style.display = '';
+                    }
+                    showMessage('A one-time code has been sent to your email.');
                 }
-                showMessage('A one-time code has been sent to your email.');
+                else {
+                    showMessage('Email address not found', true);
+                }
             } else {
                 showMessage('Something went wrong. Please try again.', true);
             }
