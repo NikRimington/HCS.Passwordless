@@ -12,6 +12,7 @@ using HCS.Passwordless.RateLimiting;
 using HCS.Passwordless.Services;
 using HCS.Passwordless.WebAuthn.Configuration;
 using HCS.Passwordless.WebAuthn.Dtos;
+using HCS.Passwordless.Core.Filters;
 using HCS.Passwordless.WebAuthn.Notifications;
 using HCS.Passwordless.WebAuthn.Services;
 using HCS.Passwordless.WebAuthn.Storage;
@@ -70,6 +71,7 @@ public partial class WebAuthnController : ControllerBase
     [HttpPost("register/options")]
     [ValidateAntiForgeryToken]
     [Authorize]
+    [EnumAsIntegerJson]
     public async Task<IActionResult> RegisterOptions([FromBody] RegisterOptionsRequest dto, CancellationToken ct)
     {
         var waOpts = _waOpts.CurrentValue;
@@ -116,6 +118,7 @@ public partial class WebAuthnController : ControllerBase
     [HttpPost("register/complete")]
     [ValidateAntiForgeryToken]
     [Authorize]
+    [EnumAsIntegerJson]
     public async Task<IActionResult> RegisterComplete([FromBody] RegisterCompleteRequest dto, CancellationToken ct)
     {
         if (!_waOpts.CurrentValue.Enabled) return NotFound();
@@ -197,6 +200,7 @@ public partial class WebAuthnController : ControllerBase
     }
 
     [HttpPost("signin/options")]
+    [EnumAsIntegerJson]
     public async Task<IActionResult> SignInOptions([FromBody] SignInOptionsRequest dto, CancellationToken ct)
     {
         var waOpts = _waOpts.CurrentValue;
@@ -264,6 +268,7 @@ public partial class WebAuthnController : ControllerBase
     }
 
     [HttpPost("signin/complete")]
+    [EnumAsIntegerJson]
     public async Task<IActionResult> SignInComplete([FromBody] SignInCompleteRequest dto, CancellationToken ct)
     {
         if (!_waOpts.CurrentValue.Enabled) return NotFound();
