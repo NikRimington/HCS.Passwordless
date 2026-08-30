@@ -1,3 +1,6 @@
+let _conditionalAbortController = null;
+let _restartConditional = null;
+
 export function initLoginForm(formEl) {
     if (!formEl) return;
 
@@ -99,11 +102,17 @@ export function initLoginForm(formEl) {
     });
 
     // Passkey / WebAuthn
+    let passkeyAbortController = null;
     formEl.querySelector('#pwl-btn-passkey')?.addEventListener('click', async function () {
         if (!window.PublicKeyCredential) {
             showMessage('Your browser does not support passkeys.', true);
             return;
         }
+        // Abort the background conditional (autofill) request and any previous modal request
+        _conditionalAbortController?.abort();
+        _conditionalAbortController = null;
+        passkeyAbortController?.abort();
+        passkeyAbortController = new AbortController();
         showMessage('');
         this.disabled = true;
         try {
@@ -112,8 +121,9 @@ export function initLoginForm(formEl) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: getEmail() || null }),
             });
-            if (!optResp.ok) { showMessage('Could not start passkey sign-in.', true); return; }
-
+            if (!optResp.ok) {
+                showMessage('Could not start passkey sign-in.', true); return;
+            }
             const { ceremonyId, options } = await optResp.json();
             const publicKey = {
                 ...options,
@@ -124,7 +134,7 @@ export function initLoginForm(formEl) {
                 })),
             };
 
-            const credential = await navigator.credentials.get({ publicKey });
+            const credential = await navigator.credentials.get({ publicKey, signal: passkeyAbortController.signal });
             if (!credential) { showMessage('Passkey sign-in was cancelled.', true); return; }
 
             const completeResp = await fetch(`${base}/webauthn/signin/complete`, {
@@ -155,6 +165,7 @@ export function initLoginForm(formEl) {
                 showMessage('Passkey verification failed. Please try again.', true);
             }
         } catch (err) {
+            if (err.name === 'AbortError') return;
             showMessage(
                 err.name === 'NotAllowedError'
                     ? 'Passkey sign-in was cancelled.'
@@ -162,6 +173,8 @@ export function initLoginForm(formEl) {
                 true);
         } finally {
             this.disabled = false;
+            passkeyAbortController = null;
+            _restartConditional?.();
         }
     });
 }
@@ -176,7 +189,7 @@ export function initConditionalUi(containerEl) {
 
     if (btn) btn.style.display = 'block';
 
-    async function signIn(mediation) {
+    async function signIn(mediation, signal) {
         const optResp = await fetch(`${base}/webauthn/signin/options`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -192,7 +205,7 @@ export function initConditionalUi(containerEl) {
         };
 
         const credential = await navigator.credentials.get(
-            mediation ? { publicKey, mediation } : { publicKey }
+            mediation ? { publicKey, mediation, signal } : { publicKey }
         );
         if (!credential) return false;
 
@@ -226,6 +239,8 @@ export function initConditionalUi(containerEl) {
     }
 
     btn?.addEventListener('click', async function () {
+        _conditionalAbortController?.abort();
+        _conditionalAbortController = null;
         this.disabled = true;
         try {
             await signIn();
@@ -233,12 +248,20 @@ export function initConditionalUi(containerEl) {
             // user cancelled
         } finally {
             this.disabled = false;
+            _restartConditional?.();
         }
     });
 
     if (typeof PublicKeyCredential.isConditionalMediationAvailable === 'function') {
         PublicKeyCredential.isConditionalMediationAvailable()
-            .then(available => { if (available) signIn('conditional').catch(() => {}); });
+            .then(available => {
+                if (!available) return;
+                _restartConditional = () => {
+                    _conditionalAbortController = new AbortController();
+                    signIn('conditional', _conditionalAbortController.signal).catch(() => {});
+                };
+                _restartConditional();
+            });
     }
 }
 
