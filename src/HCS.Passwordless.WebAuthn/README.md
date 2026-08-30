@@ -76,6 +76,45 @@ builder.CreateUmbracoBuilder()
 | `GET` | `/auth/webauthn/credentials` | List member's registered credentials |
 | `PATCH` | `/auth/webauthn/credentials/{id}` | Rename a credential |
 | `DELETE` | `/auth/webauthn/credentials/{id}` | Remove a credential |
+| `GET` | `/.well-known/webauthn` | Related Origins document (multi-domain support) |
+
+## Multi-Domain Support
+
+WebAuthn ties credentials to an RP ID (typically the root domain, e.g. `example.com`). When you need the same passkey to work across **multiple origins** (e.g. `https://example.com` and `https://login.example.com`), browsers require that the RP ID's domain publishes a Related Origins document.
+
+This package automatically serves that document at `GET /.well-known/webauthn`. The document is populated from `HCS:Authentication:WebAuthn:Origins` and follows the format defined by the [W3C WebAuthn Related Origins spec](https://www.w3.org/TR/webauthn-3/#sctn-related-origins).
+
+### Example configuration
+
+```json
+{
+  "HCS": {
+    "Authentication": {
+      "WebAuthn": {
+        "RpId": "example.com",
+        "Origins": [
+          "https://example.com",
+          "https://login.example.com",
+          "https://app.example.com"
+        ]
+      }
+    }
+  }
+}
+```
+
+```json
+// GET https://example.com/.well-known/webauthn
+{
+  "origins": [
+    "https://example.com",
+    "https://login.example.com",
+    "https://app.example.com"
+  ]
+}
+```
+
+> The endpoint returns **404** when `Enabled` is `false` or `Origins` is empty.
 
 ## Database Migration
 
